@@ -43,7 +43,7 @@ public class Recepcion implements Serializable {
     }
     
     public void setCallbackUrl(Object n){
-        this.callbackUrl = callbackUrl;
+        this.callbackUrl = n;
     }
     
     public String getFecha(){

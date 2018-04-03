@@ -6,22 +6,32 @@
 package com.pandatech.servlet;
 
 import com.google.gson.Gson;
-import com.pandatech.bean.Callbackurl;
 import com.pandatech.bean.IdentificacionEmisor;
 import com.pandatech.bean.IdentificacionReceptor;
 import com.pandatech.bean.Recepcion;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import static java.lang.System.out;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.Map;
 import java.util.logging.Level;
+import javax.json.Json;
 import javax.json.JsonObject;
 import javax.servlet.ServletException;
+import static javax.servlet.SessionTrackingMode.URL;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.*;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.ClientRequestContext;
@@ -33,7 +43,10 @@ import javax.ws.rs.core.Form;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONObject; 
+import org.json.JSONObject;
+import javax.ws.rs.core.Response;
+import org.apache.http.HttpEntity;
+
 
 /**
  *
@@ -151,7 +164,7 @@ public class Logica extends HttpServlet {
 
     public void creacionObjetoJson() {
         //Se creó un objeto recepcion global
-        recepcion.setClave("506" + "010118" + "003101684401" + "0000000000000000010" + "1" + "999999999");
+        recepcion.setClave("506" + "010118" + "003101684401" + "0000000000000000013" + "1" + "999999999");
         //System.out.println(recepcion.getClave());
         recepcion.setFecha("2018-04-01T00:00:00-0600");
 
@@ -166,13 +179,7 @@ public class Logica extends HttpServlet {
         receptor.setNumeroIdentificacion("3101684401");
 
         recepcion.setIdentificacionReceptor(receptor);
-        
-        /*
-        Callbackurl callback = new Callbackurl();
-        callback.setCallbackUrl("https://api.comprobanteselectronicos.go.cr/recepcion/v1/recepcion/" + recepcion.getClave() + "/");
-        recepcion.setCallbackUrl(callback);
-        System.out.println(callback.getCallbackUrl());
-        */
+
         
         recepcion.setComprobanteXml("PD94bWwgdmVyc2lvbj0iMS4wIiA/Pg0KDQo8ZG9tYWluIHhtbG5zPSJ1cm46amJvc3M6ZG9tYWluOjQuMCI+DQogICAgPGV4dGVuc2lvbnM+DQogICAgICAgIDxleHRlbnNpb24gbW9kdWxlPSJvcmcuamJvc3MuYXMuY2x1c3RlcmluZy5pbmZpbmlzcGFuIi8+DQogICAgICAgIDxleHRlbnNpb24gbW9kdWxlPSJvcmcuamJvc3MuYXMuY2x1c3RlcmluZy5qZ3JvdXBzIi8+DQogICAgICAgIDxleHRlbnNpb24gbW9kdWxlPSJvcmcuamJvc3MuYXMuY29ubmVjdG9yIi8+DQogICAgICAgIDxleHRlbnNpb24gbW");
 
@@ -213,9 +220,12 @@ public class Logica extends HttpServlet {
                 case 400:
                     // Se da si se detecta un error en las validaciones, por ejemplo: si intento enviar más de una
                     // vez un documento. El encabezado "X-Error-Cause" indica la causa del problema.
-                    String xErrorCause = post.getHeaderString("X-Error-Cause");
+                    System.out.println(post.getHeaderString("X-Error-Cause"));
+                    System.out.println(post.getHeaderString("X-Ratelimit-Limit"));
+                    System.out.println(post.getHeaderString("X-Ratelimit-Remaining"));
+                    System.out.println(post.getHeaderString("X-Ratelimit-Reset"));
                     //LOG.log(Level.SEVERE, xErrorCause);
-                    System.out.println(xErrorCause);
+
                     break;
             }
         } catch (Exception e) {
@@ -244,19 +254,18 @@ public class Logica extends HttpServlet {
                 // del JSON. de respuesta da por aceptado o rechazado el documento. Si no está
                 // en ese estado se debe reintentar posteriormente.
                 System.out.println(res.getStatusInfo());
+                System.out.println(res);
+                String output = res.readEntity(String.class);
+                System.out.println(output);
                 
-                System.out.println(res.toString());
-                
-                /*
-                JSONObject myResponse = new JSONObject(res.toString());
-                System.out.println("result after Reading JSON Response");
-                System.out.println(myResponse.getString("ind-estado"));
-                */
                 break;
             case 404:
                 // Se presenta si no se localiza la clave brindada
                 //LOG.log(Level.SEVERE, "La clave no esta registrada");
                 System.out.println("La clave no esta registrada");
+                break;
+            case 400:
+                System.out.println(res.getHeaderString("X-Error-Cause"));
                 break;
 
         }
