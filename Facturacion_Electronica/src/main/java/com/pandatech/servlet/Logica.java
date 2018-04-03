@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import com.pandatech.bean.IdentificacionEmisor;
 import com.pandatech.bean.IdentificacionReceptor;
 import com.pandatech.bean.Recepcion;
+import com.pandatech.bean.Validacion;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -257,6 +258,12 @@ public class Logica extends HttpServlet {
                 System.out.println(res);
                 String output = res.readEntity(String.class);
                 System.out.println(output);
+                
+                try {
+                    final Gson gson = new Gson();
+                    final Validacion empleado = gson.fromJson(output, Validacion.class);
+                } catch (Exception e) {
+                }
                 
                 break;
             case 404:

@@ -23,7 +23,6 @@ public class Recepcion implements Serializable {
     private String fecha;
     private Object emisor;
     private Object receptor;
-    private Object callbackUrl;
     private String comprobanteXml;
     
     
@@ -38,13 +37,7 @@ public class Recepcion implements Serializable {
         this.clave = n;
     }
     
-    public Object getCallbackUrl(){
-        return callbackUrl;
-    }
     
-    public void setCallbackUrl(Object n){
-        this.callbackUrl = n;
-    }
     
     public String getFecha(){
         return fecha;
