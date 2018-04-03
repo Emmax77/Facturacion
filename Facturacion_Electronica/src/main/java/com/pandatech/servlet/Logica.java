@@ -10,6 +10,7 @@ import com.pandatech.bean.IdentificacionEmisor;
 import com.pandatech.bean.IdentificacionReceptor;
 import com.pandatech.bean.Recepcion;
 import com.pandatech.bean.Validacion;
+import com.sun.jersey.core.util.Base64;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -46,8 +47,8 @@ import javax.ws.rs.core.Response;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 import javax.ws.rs.core.Response;
+import javax.xml.bind.DatatypeConverter;
 import org.apache.http.HttpEntity;
-
 
 /**
  *
@@ -181,7 +182,6 @@ public class Logica extends HttpServlet {
 
         recepcion.setIdentificacionReceptor(receptor);
 
-        
         recepcion.setComprobanteXml("PD94bWwgdmVyc2lvbj0iMS4wIiA/Pg0KDQo8ZG9tYWluIHhtbG5zPSJ1cm46amJvc3M6ZG9tYWluOjQuMCI+DQogICAgPGV4dGVuc2lvbnM+DQogICAgICAgIDxleHRlbnNpb24gbW9kdWxlPSJvcmcuamJvc3MuYXMuY2x1c3RlcmluZy5pbmZpbmlzcGFuIi8+DQogICAgICAgIDxleHRlbnNpb24gbW9kdWxlPSJvcmcuamJvc3MuYXMuY2x1c3RlcmluZy5qZ3JvdXBzIi8+DQogICAgICAgIDxleHRlbnNpb24gbW9kdWxlPSJvcmcuamJvc3MuYXMuY29ubmVjdG9yIi8+DQogICAgICAgIDxleHRlbnNpb24gbW");
 
         /*
@@ -256,15 +256,25 @@ public class Logica extends HttpServlet {
                 // en ese estado se debe reintentar posteriormente.
                 System.out.println(res.getStatusInfo());
                 System.out.println(res);
-                String output = res.readEntity(String.class);
+                String output = res.readEntity(String.class).replace("ind-estado", "ind_estado").replace("respuesta-xml", "respuesta_xml");
                 System.out.println(output);
-                
+
                 try {
                     final Gson gson = new Gson();
-                    final Validacion empleado = gson.fromJson(output, Validacion.class);
+                    final Validacion json = gson.fromJson(output, Validacion.class);
+                    /*
+                    System.out.println(json.getClave());
+                    System.out.println(json.getFecha());
+                    System.out.println(json.getInd_estado());
+                    System.out.println(json.getRespuestaXml());
+                     */
+                    Conversion decodificar = new Conversion();
+                    String archivoxml = decodificar.decode(json.getRespuestaXml());
+                    System.out.println(archivoxml);
                 } catch (Exception e) {
+                    System.out.println(e);
                 }
-                
+
                 break;
             case 404:
                 // Se presenta si no se localiza la clave brindada

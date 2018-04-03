@@ -13,7 +13,7 @@ public class Validacion {
     private String clave;
     private String fecha;
     private String ind_estado;
-    private String respuestaXml;
+    private String respuesta_xml;
 
     public Validacion() {
     }
@@ -31,7 +31,7 @@ public class Validacion {
     }
 
     public String getRespuestaXml() {
-        return respuestaXml;
+        return respuesta_xml;
     }
     
     
