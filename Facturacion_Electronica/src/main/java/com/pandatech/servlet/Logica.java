@@ -29,10 +29,12 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.servlet.ServletException;
 import static javax.servlet.SessionTrackingMode.URL;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
 import javax.ws.rs.*;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -55,6 +57,11 @@ import org.apache.http.HttpEntity;
  * @author Emmanuel GR
  */
 @WebServlet(name = "Logica", urlPatterns = {"/Logica"})
+@MultipartConfig(fileSizeThreshold = 6291456, // 6 MB
+		maxFileSize = 10485760L, // 10 MB
+		maxRequestSize = 20971520L // 20 MB
+)
+
 public class Logica extends HttpServlet {
 
     private static final String IDP_URI = "https://idp.comprobanteselectronicos.go.cr/auth/realms/rut-stag/protocol/openid-connect";
@@ -62,6 +69,10 @@ public class Logica extends HttpServlet {
     private static String usuario = "cpj-3-101-684401@stag.comprobanteselectronicos.go.cr";
     private static String password = "X=!:&OvjqB#C_)XO@#B]";
 
+    
+    private static final String UPLOAD_DIR = "uploads";
+    
+    
     private static final String URI = "https://api.comprobanteselectronicos.go.cr/recepcion-sandbox/v1/";
 
     private String accessToken;
@@ -125,6 +136,40 @@ public class Logica extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
+        
+        response.setContentType("text/html");
+		response.setCharacterEncoding("UTF-8");
+		// gets absolute path of the web application
+		String applicationPath = request.getServletContext().getRealPath("");
+		// constructs path of the directory to save uploaded file
+		String uploadFilePath = applicationPath + File.separator + UPLOAD_DIR;
+		// creates upload folder if it does not exists
+		File uploadFolder = new File(uploadFilePath);
+		if (!uploadFolder.exists()) {
+			uploadFolder.mkdirs();
+		}
+		PrintWriter writer = response.getWriter();
+		// write all files in upload folder
+		for (Part part : request.getParts()) {
+			if (part != null && part.getSize() > 0) {
+				String fileName = part.getSubmittedFileName();
+				String contentType = part.getContentType();
+				
+				// allows only JPEG files to be uploaded
+				if (!contentType.equalsIgnoreCase("image/jpeg")) {
+					continue;
+				}
+				
+				part.write(uploadFilePath + File.separator + fileName);
+				
+				writer.append("File successfully uploaded to " 
+						+ uploadFolder.getAbsolutePath() 
+						+ File.separator
+						+ fileName
+						+ "<br>\r\n");
+			}
+		}
+        
         autenticar();
         creacionObjetoJson();
         enviarDocumento();

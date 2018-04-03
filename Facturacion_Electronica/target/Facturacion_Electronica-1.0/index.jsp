@@ -9,19 +9,16 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
+        <title>JSP Pageaaa</title>
     </head>
     <body>
-        <h1>Hello World!</h1>
-        <form action="Logica" method="post">
-            Clave: <input type="text" name="clave">
-            <br />
-            Contrase&ntilde;a: <input type="password" name="password">
-            <br />
-            Fecha: <input type="date" name="fecha">
-            <br />
-            
-            <input type="submit" value="Probar">
-        </form>
+        <h3>File Upload:</h3>
+      Select a file to upload: <br />
+      <form action = "Logica" method = "post"
+         enctype = "multipart/form-data">
+         <input type = "file" name = "file" size = "50" />
+         <br />
+         <input type = "submit" value = "Upload File" />
+      </form>
     </body>
 </html>
