@@ -40,18 +40,21 @@ public class Recepcion implements Serializable {
     
     
     public String getFecha(){
+        SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+        fecha = f.format(new Date());
         return fecha;
     }
     
-    /*
-    public void setFecha(Date n){
+    
+    public void setFecha(){
         SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-        fecha = f.format(n);
+        fecha = f.format(new Date());
     }
-    */
+    /*
     public void setFecha(String n){
         this.fecha = n;
     }
+    */
     
     public Object getIdentificacionEmisor(){
         return emisor;

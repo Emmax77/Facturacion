@@ -204,7 +204,7 @@ public class Logica extends HttpServlet {
         //Se creó un objeto recepcion global
         recepcion.setClave("506" + "010118" + "003101684401" + "0000000000000000013" + "1" + "999999999");
         //System.out.println(recepcion.getClave());
-        recepcion.setFecha("2018-04-01T00:00:00-0600");
+        recepcion.setFecha();
 
         IdentificacionEmisor emisor = new IdentificacionEmisor();
         emisor.setTipoIdentificacion("02");
@@ -313,7 +313,7 @@ public class Logica extends HttpServlet {
                     archivoxml = decodificar.decode(json.getRespuestaXml());
                     //System.out.println(archivoxml);
 
-                    //Respuesta si se crea o no el comprobante de recepción de hacienda
+                    //Creación y Respuesta si se crea o no el comprobante de recepción de hacienda
                     System.out.println(comprobanteXml());
                     
                     //Ejecucion de metodo para enviar xml por correo
