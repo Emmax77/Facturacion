@@ -389,7 +389,7 @@ public class Logica extends HttpServlet {
             MimeMessage message = new MimeMessage(session);
 
             // Se rellena el From
-            message.setFrom(new InternetAddress("yo@yo.com"));
+            message.setFrom(new InternetAddress(correoEmisor));
 
             // Se rellenan los destinatarios    
             message.addRecipient(Message.RecipientType.TO, new InternetAddress(correodestinatario));
