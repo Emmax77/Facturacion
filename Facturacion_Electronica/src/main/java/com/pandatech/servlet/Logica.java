@@ -33,6 +33,10 @@ import javax.ws.rs.core.Response;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Properties;
 import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
@@ -314,11 +318,13 @@ public class Logica extends HttpServlet {
                     //System.out.println(archivoxml);
 
                     //Creación y Respuesta si se crea o no el comprobante de recepción de hacienda
-                    System.out.println(comprobanteXml());
-                    
+                    //System.out.println(comprobanteXml());
+
                     //Ejecucion de metodo para enviar xml por correo
                     //System.out.println(envioCorreo("emmanuel.guzman@pandatechla.com", "","emmanuel.guzman@pandatechla.com"));
-
+                    
+                    
+                    
                 } catch (Exception e) {
                     System.out.println(e);
                 }
@@ -352,6 +358,7 @@ public class Logica extends HttpServlet {
             File archivo = new File(ruta);
             BufferedWriter bw = new BufferedWriter(new FileWriter(archivo));
             bw.write(archivoxml);
+
             bw.close();
             respuesta = "Comprobante Xml creado en la siguiente ruta: " + ruta;
         } catch (Exception e) {
@@ -411,6 +418,8 @@ public class Logica extends HttpServlet {
         }
         return respuesta;
     }
+
+    
 
     /**
      * Returns a short description of the servlet.
