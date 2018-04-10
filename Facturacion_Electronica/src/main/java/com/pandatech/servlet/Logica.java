@@ -10,6 +10,8 @@ import com.pandatech.bean.IdentificacionEmisor;
 import com.pandatech.bean.IdentificacionReceptor;
 import com.pandatech.bean.Recepcion;
 import com.pandatech.bean.Validacion;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -32,12 +34,16 @@ import javax.ws.rs.core.Form;
 import javax.ws.rs.core.Response;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
 import javax.mail.BodyPart;
@@ -48,6 +54,28 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileItemFactory;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import static java.lang.System.out;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Enumeration;
+import java.util.Scanner;
+import javax.xml.bind.Element;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import jdk.internal.org.xml.sax.XMLReader;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 // Clases para la creacion y manejo de XML
 /**
@@ -66,11 +94,19 @@ public class Logica extends HttpServlet {
     private static final String IDP_CLIENT_ID = "api-stag";
     private static String usuario = "cpj-3-101-684401@stag.comprobanteselectronicos.go.cr";
     private static String password = "X=!:&OvjqB#C_)XO@#B]";
+
     private static final String UPLOAD_DIR = "uploads";
     private static final String URI = "https://api.comprobanteselectronicos.go.cr/recepcion-sandbox/v1/";
 
     private String accessToken;
     private String refreshToken;
+
+    //private static final String JAR_DIR = " C:/Users/PCPTUser/Desktop/FirmaXadesEpes-master/compilado/firmar-xades.jar ";
+    private static final String JAR_DIR = " C:/Users/Emmanuel Guzman/Desktop/Facturacion_Electronica/Facturacion_Electronica/target/classes/archivos ";
+    private static final String LLAVE_DIR = " C:/Users/Emmanuel Guzman/Desktop/Facturacion_Electronica/Facturacion_Electronica/target/classes/archivos/recursos/llavecriptografica_310168440106.p12 ";
+    private static final String LLAVE_CLAVE_DIR = " 8888 ";
+    private static String XML = "";
+    private static String XML_firmado = "";
 
     Recepcion recepcion = new Recepcion();
     String archivoxml = null;
@@ -132,48 +168,60 @@ public class Logica extends HttpServlet {
             throws ServletException, IOException {
         processRequest(request, response);
 
-        response.setContentType("text/html");
-        response.setCharacterEncoding("UTF-8");
-        // gets absolute path of the web application
-        String applicationPath = request.getServletContext().getRealPath("");
-        // constructs path of the directory to save uploaded file
-        String uploadFilePath = applicationPath + File.separator + UPLOAD_DIR;
-        // creates upload folder if it does not exists
-        File uploadFolder = new File(uploadFilePath);
-        if (!uploadFolder.exists()) {
-            uploadFolder.mkdirs();
-        }
-        PrintWriter writer = response.getWriter();
-        // write all files in upload folder
-        for (Part part : request.getParts()) {
-            if (part != null && part.getSize() > 0) {
-                String fileName = part.getSubmittedFileName();
-                String contentType = part.getContentType();
+        response.setContentType("text/html;charset=UTF-8");
 
-                // allows only JPEG files to be uploaded
-                if (!contentType.equalsIgnoreCase("image/jpeg")) {
-                    continue;
+        boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+
+        if (isMultipart) {
+            FileItemFactory factory = new DiskFileItemFactory();
+            ServletFileUpload upload = new ServletFileUpload(factory);
+
+            try {
+                List<FileItem> fields = upload.parseRequest(request);
+                Iterator<FileItem> it = fields.iterator();
+
+                while (it.hasNext()) {
+                    FileItem fileItem = it.next();
+                    XML += fileItem.getString();
                 }
 
-                part.write(uploadFilePath + File.separator + fileName);
-
-                writer.append("File successfully uploaded to "
-                        + uploadFolder.getAbsolutePath()
-                        + File.separator
-                        + fileName
-                        + "<br>\r\n");
+            } catch (FileUploadException ex) {
+                Logger.getLogger(Logica.class.getName()).log(Level.SEVERE, null, ex);
             }
+            System.out.println("XML " + XML);
         }
 
+        //Realiza el proceso en tiempo de ejecucion java -jar sobre el compilado jar para realizar la firma del archivo xml
+        //Se utiliza 4 parametros para ejecutar el jar de firmado
+        //Process cat = Runtime.getRuntime().exec("java -jar C:\\Users\\Emmanuel Guzman\\Desktop\\Facturacion_Electronica\\Facturacion_Electronica\\target\\classes\\archivos\\firmar-xades.jar C:\\Users\\Emmanuel Guzman\\Desktop\\Facturacion_Electronica\\Facturacion_Electronica\\target\\classes\\archivos\\llavecriptografica_310168440106.p12 8888 C:\\Users\\Emmanuel Guzman\\Desktop\\Facturacion_Electronica\\Facturacion_Electronica\\target\\classes\\archivos\\recursos\\demo-factura.xml C:\\Users\\Emmanuel Guzman\\Desktop\\Facturacion_Electronica\\Facturacion_Electronica\\target\\classes\\archivos\\recursos\\factura_firmada.xml");
+
+        //Process cat = Runtime.getRuntime().exec("java -jar" + JAR_DIR + LLAVE_DIR + LLAVE_CLAVE_DIR + XML + XML_firmado);  
+        Process cat = Runtime.getRuntime().exec("java -jar " + JAR_DIR + LLAVE_DIR + LLAVE_CLAVE_DIR + XML + " C:/Users/Emmanuel Guzman/Desktop/Facturacion_Electronica/Facturacion_Electronica/target/classes/archivos/recursos/factura_firmada.xml");
+        //Lee el xml firmado en la ruta indicada
+        String content = readFile("C:\\Users\\Emmanuel Guzman\\Desktop\\Facturacion_Electronica\\Facturacion_Electronica\\target\\classes\\archivos\\recursos\\factura_firmada.xml", StandardCharsets.UTF_8);
+        System.out.println(content);
+
+        Conversion codificar = new Conversion();
+        String xmlBase64 = codificar.encode(content);
+        System.out.println(xmlBase64);
+        /*
         autenticar();
         creacionObjetoJson();
         enviarDocumento();
         validacionEstado();
         desconexion();
-
+*/
         Gson gson = new Gson();
         String jsonString = gson.toJson(recepcion);
         System.out.println(jsonString);
+
+    }
+    //Ejecuta proceso para leer archivo xml
+
+    public static String readFile(String path, Charset encoding)
+            throws IOException {
+        byte[] encoded = Files.readAllBytes(Paths.get(path));
+        return new String(encoded, encoding);
     }
 
     public void autenticar() {
@@ -318,13 +366,11 @@ public class Logica extends HttpServlet {
                     //System.out.println(archivoxml);
 
                     //Creación y Respuesta si se crea o no el comprobante de recepción de hacienda
-                    //System.out.println(comprobanteXml());
+                    System.out.println(comprobanteXml());
 
                     //Ejecucion de metodo para enviar xml por correo
-                    //System.out.println(envioCorreo("emmanuel.guzman@pandatechla.com", "","emmanuel.guzman@pandatechla.com"));
-                    
-                    
-                    
+                    System.out.println(envioCorreo("emmanuel.guzman@pandatechla.com", "", "emmanuel.guzman@pandatechla.com"));
+
                 } catch (Exception e) {
                     System.out.println(e);
                 }
@@ -358,7 +404,6 @@ public class Logica extends HttpServlet {
             File archivo = new File(ruta);
             BufferedWriter bw = new BufferedWriter(new FileWriter(archivo));
             bw.write(archivoxml);
-
             bw.close();
             respuesta = "Comprobante Xml creado en la siguiente ruta: " + ruta;
         } catch (Exception e) {
@@ -418,8 +463,6 @@ public class Logica extends HttpServlet {
         }
         return respuesta;
     }
-
-    
 
     /**
      * Returns a short description of the servlet.

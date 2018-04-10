@@ -1,0 +1,13 @@
+{
+  "clave": "50601011600310112345600100010100000000011999999999",
+  "fecha": "2018-04-01T00:00:00-0600",
+  "emisor": {
+    "tipoIdentificacion": "02",
+    "numeroIdentificacion": "3101684401"
+  },
+  "receptor": {
+    "tipoIdentificacion": "02",
+    "numeroIdentificacion": "3101684401"
+  },
+  "comprobanteXml": "PD94bWwgdmVyc2lvbj0iMS4wIiA/Pg0KDQo8ZG9tYWluIHhtbG5zPSJ1cm46amJvc3M6ZG9tYWluOjQuMCI+DQogICAgPGV4dGVuc2lvbnM+DQogICAgICAgIDxleHRlbnNpb24gbW9kdWxlPSJvcmcuamJvc3MuYXMuY2x1c3RlcmluZy5pbmZpbmlzcGFuIi8+DQogICAgICAgIDxleHRlbnNpb24gbW9kdWxlPSJvcmcuamJvc3MuYXMuY2x1c3RlcmluZy5qZ3JvdXBzIi8+DQogICAgICAgIDxleHRlbnNpb24gbW9kdWxlPSJvcmcuamJvc3MuYXMuY29ubmVjdG9yIi8+DQogICAgICAgIDxleHRlbnNpb24gbW..."
+}
