@@ -105,13 +105,14 @@ public class Logica extends HttpServlet  {
     private String refreshToken;
 
     //private static final String JAR_DIR = " C:/Users/PCPTUser/Desktop/FirmaXadesEpes-master/compilado/firmar-xades.jar ";
-    private static final String JAR_DIR = " C:/Users/PCPTUser/Desktop/Facturacion/Facturacion_Electronica/src/main/resources/archivos/firmar-xades ";
-    private static final String LLAVE_DIR = " C:/Users/PCPTUser/Desktop/Facturacion/Facturacion_Electronica/src/main/resources/archivos/llavecriptografica_310168440106.p12 ";
+    private static final String JAR_DIR = " C:/Users/PCPTUser/Desktop/prueba/firmar-xades.jar ";
+    private static final String LLAVE_DIR = " C:/Users/PCPTUser/Desktop/prueba/llavecriptografica_310168440106.p12 ";
     private static final String LLAVE_CLAVE_DIR = " 8888 ";
     private static  String XML = "";
     private static  String XML_firmado = "";
     
     private String extracto;
+    private String extracto1;
     private String xmlBase64;
     Recepcion recepcion = new Recepcion();
     String archivoxml = null;
@@ -195,32 +196,52 @@ public class Logica extends HttpServlet  {
     }       catch (FileUploadException ex) {
                 Logger.getLogger(Logica.class.getName()).log(Level.SEVERE, null, ex);
             }
-       System.out.println("XML " + XML);
+       System.out.println("---------------------------------------------------------------------------------------");
+       System.out.println("--------------------------------------XML---------------------------------------------- ");
+       System.out.println(XML);
     }
     
     //Realiza el proceso en tiempo de ejecucion java -jar sobre el compilado jar para realizar la firma del archivo xml
     //Se utiliza 4 parametros para ejecutar el jar de firmado
     
-    Process cat = Runtime.getRuntime().exec("java -jar C:/Users/PCPTUser/Desktop/FirmaXadesEpes-master/compilado/firmar-xades.jar C:/Users/PCPTUser/Desktop/FirmaXadesEpes-master/llavecriptografica_310168440106.p12 8888 C:/Users/PCPTUser/Desktop/FirmaXadesEpes-master/recursos/demo-factura.xml C:/Users/PCPTUser/Desktop/Facturacion/Facturacion_Electronica/src/main/resources/archivos/recursos/factura_firmada.xml");  
-       
+    
+     Process cat = Runtime.getRuntime().exec("java -jar C:/Users/PCPTUser/Desktop/prueba/firmar-xades.jar C:/Users/PCPTUser/Desktop/prueba/llavecriptografica_310168440106.p12 8888 C:/Users/PCPTUser/Desktop/prueba/prueba_huevo.xml C:/Users/PCPTUser/Desktop/prueba/prueba1.xml");  
     
     //Process cat = Runtime.getRuntime().exec("java -jar" + JAR_DIR + LLAVE_DIR + LLAVE_CLAVE_DIR + XML + XML_firmado);  
-    //Process cat = Runtime.getRuntime().exec("java -jar " + JAR_DIR + LLAVE_DIR + LLAVE_CLAVE_DIR + XML + " C:/Users/PCPTUser/Desktop/FirmaXadesEpes-master/recursos/factura_firmada.xml");
+   // Process cat = Runtime.getRuntime().exec("java -jar " + JAR_DIR + LLAVE_DIR + LLAVE_CLAVE_DIR + XML + " C:/Users/PCPTUser/Desktop/prueba/prueba1.xml ");
   
-      
         //Lee el xml firmado en la ruta indicada
-        String content = readFile("C:\\Users\\PCPTUser\\Desktop\\Facturacion\\Facturacion_Electronica\\src\\main\\resources\\archivos\\recursos\\factura_firmada.xml", StandardCharsets.UTF_8);
-        System.out.println( "XML Firmado" + content);
+        String content = readFile("C:\\Users\\PCPTUser\\Desktop\\prueba\\prueba1.xml", StandardCharsets.UTF_8);
+        System.out.println("------------------------------------------------------------------------------------------------ ");
+        System.out.println("--------------------------------------XML FIRMADO----------------------------------------------- ");
+  
+        
+        System.out.println(content);
         
             //se debe encontrar en numero de clave en el xml
          extracto = content.toString();
-         extracto = content.substring(269, 319);
-         System.out.println( " extracto clave " + extracto);
-        
+         
+         extracto1 = extracto.substring(extracto.indexOf("<Clave>") + 7, extracto.indexOf("</Clave>"));
+         
+         System.out.println("----------------------------------------------------------------------------------------------------------------------------- ");
+         System.out.println("--------------------------------------VALIDACION CANTIDAD CARACTERES EN CLAVE ----------------------------------------------- ");
+         if (extracto1.length() < 50 ){
+         System.out.println("Caracteres insuficientes en la clave, volver validar");
+         }else{
+         System.out.println("Correcto " + extracto1.length());
+                 
+    }     
+         
+         System.out.println("-------------------------------------------------------------------------------------------------------- ");
+         System.out.println("--------------------------------------XML EXTRACTO CLAVE ----------------------------------------------- ");
+         System.out.println(extracto1);
+           
          //se convierte el resultado del xml firmado en base 64
         Conversion codificar = new Conversion();
         xmlBase64 = codificar.encode(content);
-        System.out.println(" XML BASE 64 " + xmlBase64);
+        System.out.println("----------------------------------------------------------------------------------------------------------- ");
+        System.out.println("--------------------------------------CONVERSION XML BASE 64----------------------------------------------- ");
+        System.out.println(xmlBase64);
         
         
         
@@ -230,7 +251,7 @@ public class Logica extends HttpServlet  {
         autenticar();
         creacionObjetoJson();
         enviarDocumento();
-        //validacionEstado();
+        validacionEstado();
         desconexion();
 
         Gson gson = new Gson();
@@ -276,7 +297,7 @@ public class Logica extends HttpServlet  {
     public void creacionObjetoJson() {
         //Se creó un objeto recepcion global
         //recepcion.setClave("506" + "010118" + "003101684401" + "0000000000000000013" + "1" + "999999999");
-        recepcion.setClave(extracto);
+        recepcion.setClave(extracto1);
         
         //System.out.println(recepcion.getClave());
         recepcion.setFecha();

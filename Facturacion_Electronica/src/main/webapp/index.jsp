@@ -9,11 +9,11 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Pageaaa</title>
+        <title>Adjuntar Archvo XML</title>
     </head>
     <body>
         <h3>File Upload:</h3>
-      Select a file to upload: <br />
+      Seleccione documento a subir: <br />
       <form action = "Logica" method = "post"
          enctype = "multipart/form-data">
           
