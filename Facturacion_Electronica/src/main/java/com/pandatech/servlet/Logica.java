@@ -68,6 +68,8 @@ import java.nio.file.Paths;
 
 import java.util.Enumeration;
 import java.util.Scanner;
+import javax.jws.WebMethod;
+import javax.jws.WebService;
 import javax.xml.bind.Element;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
@@ -91,6 +93,8 @@ import org.w3c.dom.NodeList;
         maxRequestSize = 20971520L // 20 MB
 )
 
+
+//@WebService
 public class Logica extends HttpServlet  {
 
     private static final String IDP_URI = "https://idp.comprobanteselectronicos.go.cr/auth/realms/rut-stag/protocol/openid-connect";
@@ -103,8 +107,8 @@ public class Logica extends HttpServlet  {
 
     private String accessToken;
     private String refreshToken;
-
-    //private static final String JAR_DIR = " C:/Users/PCPTUser/Desktop/FirmaXadesEpes-master/compilado/firmar-xades.jar ";
+    
+   
     private static final String JAR_DIR = " C:/Users/PCPTUser/Desktop/prueba/firmar-xades.jar ";
     private static final String LLAVE_DIR = " C:/Users/PCPTUser/Desktop/prueba/llavecriptografica_310168440106.p12 ";
     private static final String LLAVE_CLAVE_DIR = " 8888 ";
@@ -156,6 +160,7 @@ public class Logica extends HttpServlet  {
      * @throws IOException if an I/O error occurs
      */
     @Override
+    @WebMethod
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
@@ -205,9 +210,9 @@ public class Logica extends HttpServlet  {
     //Se utiliza 4 parametros para ejecutar el jar de firmado
     
     
-     Process cat = Runtime.getRuntime().exec("java -jar C:/Users/PCPTUser/Desktop/prueba/firmar-xades.jar C:/Users/PCPTUser/Desktop/prueba/llavecriptografica_310168440106.p12 8888 C:/Users/PCPTUser/Desktop/prueba/prueba_huevo.xml C:/Users/PCPTUser/Desktop/prueba/prueba1.xml");  
+     Process cat = Runtime.getRuntime().exec("java -jar C:/Users/PCPTUser/Desktop/prueba/firmar-xades.jar C:/Users/PCPTUser/Desktop/prueba/llavecriptografica_310168440106.p12 8888 C:/Users/PCPTUser/Desktop/prueba/tiquete.xml C:/Users/PCPTUser/Desktop/prueba/prueba1.xml");  
     
-    //Process cat = Runtime.getRuntime().exec("java -jar" + JAR_DIR + LLAVE_DIR + LLAVE_CLAVE_DIR + XML + XML_firmado);  
+   // Process cat = Runtime.getRuntime().exec("java -jar"  + JAR_DIR + LLAVE_DIR + LLAVE_CLAVE_DIR + XML + XML_firmado);  
    // Process cat = Runtime.getRuntime().exec("java -jar " + JAR_DIR + LLAVE_DIR + LLAVE_CLAVE_DIR + XML + " C:/Users/PCPTUser/Desktop/prueba/prueba1.xml ");
   
         //Lee el xml firmado en la ruta indicada
@@ -218,13 +223,14 @@ public class Logica extends HttpServlet  {
         
         System.out.println(content);
         
-            //se debe encontrar en numero de clave en el xml
+            //se debe encontrar el numero de clave en el xml
          extracto = content.toString();
          
          extracto1 = extracto.substring(extracto.indexOf("<Clave>") + 7, extracto.indexOf("</Clave>"));
          
          System.out.println("----------------------------------------------------------------------------------------------------------------------------- ");
          System.out.println("--------------------------------------VALIDACION CANTIDAD CARACTERES EN CLAVE ----------------------------------------------- ");
+         //valida la clave sustraid cuente con los 50 caracteres
          if (extracto1.length() < 50 ){
          System.out.println("Caracteres insuficientes en la clave, volver validar");
          }else{
@@ -242,11 +248,6 @@ public class Logica extends HttpServlet  {
         System.out.println("----------------------------------------------------------------------------------------------------------- ");
         System.out.println("--------------------------------------CONVERSION XML BASE 64----------------------------------------------- ");
         System.out.println(xmlBase64);
-        
-        
-        
-        
-        
         
         autenticar();
         creacionObjetoJson();
@@ -316,9 +317,7 @@ public class Logica extends HttpServlet  {
 
      // recepcion.setComprobanteXml("PD94bWwgdmVyc2lvbj0iMS4wIiA/Pg0KDQo8ZG9tYWluIHhtbG5zPSJ1cm46amJvc3M6ZG9tYWluOjQuMCI+DQogICAgPGV4dGVuc2lvbnM+DQogICAgICAgIDxleHRlbnNpb24gbW9kdWxlPSJvcmcuamJvc3MuYXMuY2x1c3RlcmluZy5pbmZpbmlzcGFuIi8+DQogICAgICAgIDxleHRlbnNpb24gbW9kdWxlPSJvcmcuamJvc3MuYXMuY2x1c3RlcmluZy5qZ3JvdXBzIi8+DQogICAgICAgIDxleHRlbnNpb24gbW9kdWxlPSJvcmcuamJvc3MuYXMuY29ubmVjdG9yIi8+DQogICAgICAgIDxleHRlbnNpb24gbW");
         recepcion.setComprobanteXml(xmlBase64);
-        
-        
-        
+              
         /*
         System.out.println(recepcion.getClave());
         System.out.println(recepcion.getFecha());
@@ -370,8 +369,7 @@ public class Logica extends HttpServlet  {
         }
 
     }
-
-    public void validacionEstado() {
+     public void validacionEstado() {
         Client client = ClientBuilder.newClient();
         // En éste caso, clave corresponde a la clave del documento a validar
         WebTarget target = client.target(URI + "recepcion/" + recepcion.getClave());
@@ -458,7 +456,7 @@ public class Logica extends HttpServlet  {
         }
         return respuesta;
     }
-
+    //envia correo electronico segun el correo emisor,la clave del emisor y su respectivo destinatario
     public String envioCorreo(String correoEmisor, String password, String correodestinatario) {
         String respuesta = "";
         Properties props = new Properties();
